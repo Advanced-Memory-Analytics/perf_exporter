@@ -1,0 +1,41 @@
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - '9090:9090'
+    networks:
+      - my_network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=password  # Change this to your desired password
+    networks:
+      - my_network
+
+  node_exporter1:
+    image: prom/node-exporter
+    # command: ["apk-get update && apk-get install -y linux-tools-common linux-tools-generic"]
+    container_name: node_exporter1
+    ports:
+      - '9100:9100'
+    networks:
+      - my_network
+
+  node_exporter2:
+    image: prom/node-exporter
+    # command: ["apt-get update && apt-get install -y linux-tools-common linux-tools-generic"]
+    container_name: node_exporter2
+    ports:
+      - '9200:9100'  # Mapping to a different host port to avoid conflicts
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
