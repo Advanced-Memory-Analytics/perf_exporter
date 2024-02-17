@@ -1,7 +1,0 @@
-docker run --rm --detach \
-    --name prometheus_grafana \
-    --network sample_nutanix_server \
-    --publish 9090:9090 \
-    --volume prometheus-volume:/prometheus \
-    --volume /Users/apramaysingh/Documents/nutanix/prom_grafana_node_exp/prometheus.yml:/etc/prometheus/prometheus.yml \
-    prom/prometheus
