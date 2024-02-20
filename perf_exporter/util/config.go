@@ -3,7 +3,8 @@ package util
 import "github.com/spf13/viper"
 
 type Config struct {
-	SERVER_ADDRESS string `server_address`
+	SERVER_ADDRESS string `SERVER_ADDRESS`
+	KAFKA_ADDRESS  string `KAFKA_ADDRESS`
 }
 
 func LoadConfig() (config *Config, err error) {

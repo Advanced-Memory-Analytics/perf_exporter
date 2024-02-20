@@ -32,7 +32,5 @@ EXPOSE 9100
 COPY perf_paranoid_mod.sh /usr/local/bin/
 
 # Run node_exporter
-# ENTRYPOINT ["/usr/local/bin/node_exporter", "/usr/local/bin/perf_paranoid_mod.sh"]
-
 ENTRYPOINT ["/usr/local/bin/perf_paranoid_mod.sh"]
 CMD ["/usr/local/bin/node_exporter"]
