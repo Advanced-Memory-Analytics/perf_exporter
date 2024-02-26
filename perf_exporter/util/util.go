@@ -11,6 +11,24 @@ import (
 	"time"
 )
 
+func truncateToInt(num int) int {
+	// Convert the integer to a string
+	numStr := strconv.Itoa(num)
+
+	// Take the first two characters of the string
+	truncatedStr := numStr[:2]
+
+	// Convert the truncated string back to an integer
+	truncatedInt, err := strconv.Atoi(truncatedStr)
+	if err != nil {
+		// Handle error if conversion fails
+		fmt.Println("Error:", err)
+		return 0 // or any default value you prefer
+	}
+
+	return truncatedInt
+}
+
 func generateRandomPercentages(n int) []float64 {
 	// Calculate base percentage and number of values to receive leftover
 	basePercentage := 100.0 / float64(n)
@@ -54,12 +72,12 @@ func GenerateRandMemLoadString() string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	eventSampled := r.Intn(100001-40000) + 40000
-	eventCount := int(math.Ceil(float64(eventSampled)/1000) * 1000)
+	eventCount := int(math.Ceil(float64(eventSampled)/10000) * 10000)
 
 	percentages := generateRandomPercentages(8)
 
 	// Create the template string with placeholders
-	memBreakdownHeader := fmt.Sprintf("Samples: %dK of event 'cpu/mem-loads,ldlat=30/P', Event count (approx.): %d\nOverhead\tSamples\tMemory access\n", eventSampled, eventCount)
+	memBreakdownHeader := fmt.Sprintf("Samples: %dK of event 'cpu/mem-loads,ldlat=30/P', Event count (approx.): %d\nOverhead\tSamples\tMemory access\n", truncateToInt(eventSampled), eventCount)
 
 	templateMemBreakdown := []string{
 		"%.2f%%  \t%d LFB or LFB hit",

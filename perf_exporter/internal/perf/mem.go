@@ -1,6 +1,7 @@
 package perf
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -55,7 +56,13 @@ func MemCollector(collectorType string) error {
 					return fmt.Errorf("failed to parse memory load file %v", err)
 				}
 
-				fmt.Printf("Perf Mem Loads: %v\n", perf.Mem.Load)
+				jsonData, err := json.Marshal(perf)
+				if err != nil {
+					return fmt.Errorf("failed to marshal memory load file results %v", err)
+				}
+
+				fmt.Printf("Perf Mem Loads: %v\n\n", perf.Mem.Load)
+				fmt.Printf("Json Data: %v\n\n", string(jsonData))
 			}
 		}
 	case "store":
