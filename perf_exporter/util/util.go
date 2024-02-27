@@ -12,20 +12,14 @@ import (
 )
 
 func truncateToInt(num int) int {
-	// Convert the integer to a string
 	numStr := strconv.Itoa(num)
-
-	// Take the first two characters of the string
 	truncatedStr := numStr[:2]
 
-	// Convert the truncated string back to an integer
 	truncatedInt, err := strconv.Atoi(truncatedStr)
 	if err != nil {
-		// Handle error if conversion fails
-		fmt.Println("Error:", err)
-		return 0 // or any default value you prefer
+		fmt.Printf("error: %v", err)
+		return 0
 	}
-
 	return truncatedInt
 }
 

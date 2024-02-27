@@ -1,10 +1,10 @@
-Samples: 67K of event 'cpu/mem-loads,ldlat=30/P', Event count (approx.): 70000
+Samples: 59K of event 'cpu/mem-loads,ldlat=30/P', Event count (approx.): 60000
 Overhead	Samples	Memory access
-24.78%  	16730 LFB or LFB hit
-18.15%  	12251 L1 or L1 hit
-16.17%  	10915 L3 or L3 hit
-15.32%  	10344 Ldl RAM or RAM hit
-9.68%  	6533 L2 or L2 hit
-8.83%  	5962 Uncached or N/A hit
-6.85%  		4626 I/O or N/A hit
-0.22%  		147 L3 miss
+17.79%  	10659 LFB or LFB hit
+16.93%  	10141 L1 or L1 hit
+16.68%  	9991 L3 or L3 hit
+13.22%  	7919 Ldl RAM or RAM hit
+11.78%  	7056 L2 or L2 hit
+8.32%  	4985 Uncached or N/A hit
+8.07%  		4835 I/O or N/A hit
+7.21%  		4316 L3 miss
