@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 25s
+
+scrape_configs:
+  - job_name: "perf_mem_loads"
+    static_configs:
+      - targets: ['localhost:8080']  # Targeting node_exporter1 container

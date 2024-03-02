@@ -19,9 +19,12 @@ func init() {
 	prometheus.MustRegister(promCollector.NewCollector())
 }
 func main() {
+
+	promCollector.PromChannel = make(chan string)
+
 	fmt.Println(util.GenerateRandMemLoadString())
 
-	go perf.MemCollector("load")
+	go perf.MemCollector("load", promCollector.PromChannel)
 
 	config, err := util.LoadConfig()
 	if err != nil {

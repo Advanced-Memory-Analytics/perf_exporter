@@ -32,12 +32,12 @@ type MemStatsTable struct {
 	MemAccessType string  `json:"access"`
 }
 
-func MemCollector(collectorType string) error {
+func MemCollector(collectorType string, dataBuff chan string) error {
 	switch collectorType {
 	case "load":
 		{
 			for {
-				time.Sleep(8 * time.Second)
+				time.Sleep(2 * time.Second)
 				perf := Perf{}
 
 				err := os.WriteFile("mem_load.txt", []byte(util.GenerateRandMemLoadString()), os.ModeExclusive)
@@ -60,15 +60,19 @@ func MemCollector(collectorType string) error {
 				if err != nil {
 					return fmt.Errorf("failed to marshal memory load file results %v", err)
 				}
-
 				fmt.Printf("Perf Mem Loads: %v\n\n", perf.Mem.Load)
 				fmt.Printf("Json Data: %v\n\n", string(jsonData))
+
+				fmt.Println("before change:")
+				dataBuff <- string(jsonData)
+				fmt.Println("after change:")
+
 			}
 		}
 	case "store":
 		{
 			for {
-				time.Sleep(8 * time.Second)
+				time.Sleep(2 * time.Second)
 				perf := Perf{}
 
 				text, err := os.ReadFile("mem_store.txt")

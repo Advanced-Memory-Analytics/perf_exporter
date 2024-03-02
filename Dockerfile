@@ -1,11 +1,13 @@
 FROM debian:bullseye-slim
 
 ARG ARCH_TYPE="arm64"
-
 ENV ARCH_TYPE=$ARCH_TYPE
 
+COPY --from=golang:1.22-bullseye /usr/local/go/ /usr/local/go/
+ 
+ENV PATH="/usr/local/go/bin:${PATH}"
+
 # Install dependencies
-# RUN apt-get update && apt-get install -y wget
 RUN apt-get update \
     && apt-get install -y \
         linux-perf \
@@ -25,12 +27,20 @@ RUN cp node_exporter-1.7.0.linux-${ARCH_TYPE}/node_exporter /usr/local/bin/
 # Cleanup
 RUN rm -rf node_exporter-1.7.0.linux-${ARCH_TYPE}/ node_exporter-1.7.0.linux-${ARCH_TYPE}.tar.gz
 
-
 # Expose the default port used by node_exporter
 EXPOSE 9100
+EXPOSE 8080
 
-COPY perf_paranoid_mod.sh /usr/local/bin/
+COPY build.sh /usr/local/bin/
+COPY perf_exporter /app
+
+# Set permissions and working directory
+# WORKDIR /app
+RUN chmod +x /usr/local/bin/build.sh
+RUN chmod +x /app/main
 
 # Run node_exporter
-ENTRYPOINT ["/usr/local/bin/perf_paranoid_mod.sh"]
-CMD ["/usr/local/bin/node_exporter"]
+# ENTRYPOINT ["/usr/local/bin/perf_paranoid_mod.sh"]
+RUN ls -l /usr/local/bin/build.sh
+# RUN ./usr/local/bin/build.sh
+CMD ./usr/local/bin/build.sh
