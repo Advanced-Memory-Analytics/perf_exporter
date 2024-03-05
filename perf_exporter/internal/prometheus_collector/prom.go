@@ -6,6 +6,8 @@ import (
 	"log"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/Advanced-Memory-Analytics/perf_exporter/internal/perf"
 )
 
 // var ToPerf chan string = make(chan string)
@@ -266,52 +268,55 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	// 	}
 	// }`
 
-	for jsonData := range PromChannel {
-		fmt.Printf("TO PERF: %v\n", jsonData)
-		var data MemoryLoadJSON
-		err := json.Unmarshal([]byte(jsonData), &data)
-		if err != nil {
-			log.Fatalf("Failed to unmarshal JSON data: %v", err)
-		}
+	jsonData, err := perf.MemCollector("load")
+	if err != nil {
+		log.Fatalf("Failed to generate JSON data: %v", err)
+	}
 
-		ch <- prometheus.MustNewConstMetric(c.memLoadSampleCount, prometheus.GaugeValue, float64(data.Mem.Load.Header.SampleCount), fmt.Sprintf("samples:%s", data.Mem.Load.Header.Event))
-		ch <- prometheus.MustNewConstMetric(c.memLoadEventCount, prometheus.GaugeValue, float64(data.Mem.Load.Header.EventCount), fmt.Sprintf("events:%s", data.Mem.Load.Header.Event))
+	fmt.Printf("TO PERF: %v\n", jsonData)
+	var data MemoryLoadJSON
+	err = json.Unmarshal([]byte(jsonData), &data)
+	if err != nil {
+		log.Fatalf("Failed to unmarshal JSON data: %v", err)
+	}
 
-		for _, entry := range data.Mem.Load.Data {
-			switch entry.Access {
-			case "LFB or LFB hit":
-				// Handle LFB or LFB hit case
-				ch <- prometheus.MustNewConstMetric(c.memLoadLFBHitSamplePct, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-				ch <- prometheus.MustNewConstMetric(c.memLoadLFBHitSampleCount, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-			case "L1 or L1 hit":
-				// Handle L1 or L1 hit case
-				ch <- prometheus.MustNewConstMetric(c.memLoadL1HitSampleCount, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-				ch <- prometheus.MustNewConstMetric(c.memLoadL1HitSamplePct, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-			case "L3 or L3 hit":
-				// Handle L3 or L3 hit case
-				ch <- prometheus.MustNewConstMetric(c.memLoadL3HitSampleCount, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-				ch <- prometheus.MustNewConstMetric(c.memLoadL3HitSamplePct, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-			case "Ldl RAM or RAM hit":
-				// Handle Ldl RAM or RAM hit case
-				ch <- prometheus.MustNewConstMetric(c.memLoadLDLRAMHitSampleCount, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-				ch <- prometheus.MustNewConstMetric(c.memLoadLDLRAMHitSamplePct, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-			case "L2 or L2 hit":
-				// Handle L2 or L2 hit case
-				ch <- prometheus.MustNewConstMetric(c.memLoadL2HitSampleCount, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-				ch <- prometheus.MustNewConstMetric(c.memLoadL2HitSamplePct, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-			case "Uncached or N/A hit":
-				// Handle Uncached or N/A hit case
-				ch <- prometheus.MustNewConstMetric(c.memLoadUncachedNAHitSampleCount, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-				ch <- prometheus.MustNewConstMetric(c.memLoadUncachedNAHitSamplePct, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-			case "I/O or N/A hit":
-				// Handle I/O or N/A hit case
-				ch <- prometheus.MustNewConstMetric(c.memLoadIONAHitSampleCount, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-				ch <- prometheus.MustNewConstMetric(c.memLoadIONAHitSamplePct, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-			case "L3 miss":
-				// Handle L3 miss case
-				ch <- prometheus.MustNewConstMetric(c.memLoadL3MissHitSampleCount, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-				ch <- prometheus.MustNewConstMetric(c.memLoadL3MissHitSamplePct, prometheus.GaugeValue, entry.Percentage, fmt.Sprintf("access:%s", entry.Access))
-			}
+	ch <- prometheus.MustNewConstMetric(c.memLoadSampleCount, prometheus.GaugeValue, float64(data.Mem.Load.Header.SampleCount), fmt.Sprintf("samples:%s", data.Mem.Load.Header.Event))
+	ch <- prometheus.MustNewConstMetric(c.memLoadEventCount, prometheus.GaugeValue, float64(data.Mem.Load.Header.EventCount), fmt.Sprintf("events:%s", data.Mem.Load.Header.Event))
+
+	for _, entry := range data.Mem.Load.Data {
+		switch entry.Access {
+		case "LFB or LFB hit":
+			// Handle LFB or LFB hit case
+			ch <- prometheus.MustNewConstMetric(c.memLoadLFBHitSampleCount, prometheus.GaugeValue, float64(entry.Samples), entry.Access)
+			ch <- prometheus.MustNewConstMetric(c.memLoadLFBHitSamplePct, prometheus.GaugeValue, entry.Percentage, entry.Access)
+		case "L1 or L1 hit":
+			// Handle L1 or L1 hit case
+			ch <- prometheus.MustNewConstMetric(c.memLoadL1HitSampleCount, prometheus.GaugeValue, float64(entry.Samples), entry.Access)
+			ch <- prometheus.MustNewConstMetric(c.memLoadL1HitSamplePct, prometheus.GaugeValue, entry.Percentage, entry.Access)
+		case "L3 or L3 hit":
+			// Handle L3 or L3 hit case
+			ch <- prometheus.MustNewConstMetric(c.memLoadL3HitSampleCount, prometheus.GaugeValue, float64(entry.Samples), entry.Access)
+			ch <- prometheus.MustNewConstMetric(c.memLoadL3HitSamplePct, prometheus.GaugeValue, entry.Percentage, entry.Access)
+		case "Ldl RAM or RAM hit":
+			// Handle Ldl RAM or RAM hit case
+			ch <- prometheus.MustNewConstMetric(c.memLoadLDLRAMHitSampleCount, prometheus.GaugeValue, float64(entry.Samples), entry.Access)
+			ch <- prometheus.MustNewConstMetric(c.memLoadLDLRAMHitSamplePct, prometheus.GaugeValue, entry.Percentage, entry.Access)
+		case "L2 or L2 hit":
+			// Handle L2 or L2 hit case
+			ch <- prometheus.MustNewConstMetric(c.memLoadL2HitSampleCount, prometheus.GaugeValue, float64(entry.Samples), entry.Access)
+			ch <- prometheus.MustNewConstMetric(c.memLoadL2HitSamplePct, prometheus.GaugeValue, entry.Percentage, entry.Access)
+		case "Uncached or N/A hit":
+			// Handle Uncached or N/A hit case
+			ch <- prometheus.MustNewConstMetric(c.memLoadUncachedNAHitSampleCount, prometheus.GaugeValue, float64(entry.Samples), entry.Access)
+			ch <- prometheus.MustNewConstMetric(c.memLoadUncachedNAHitSamplePct, prometheus.GaugeValue, entry.Percentage, entry.Access)
+		case "I/O or N/A hit":
+			// Handle I/O or N/A hit case
+			ch <- prometheus.MustNewConstMetric(c.memLoadIONAHitSampleCount, prometheus.GaugeValue, float64(entry.Samples), entry.Access)
+			ch <- prometheus.MustNewConstMetric(c.memLoadIONAHitSamplePct, prometheus.GaugeValue, entry.Percentage, entry.Access)
+		case "L3 miss":
+			// Handle L3 miss case
+			ch <- prometheus.MustNewConstMetric(c.memLoadL3MissHitSampleCount, prometheus.GaugeValue, float64(entry.Samples), entry.Access)
+			ch <- prometheus.MustNewConstMetric(c.memLoadL3MissHitSamplePct, prometheus.GaugeValue, entry.Percentage, entry.Access)
 		}
 	}
 }

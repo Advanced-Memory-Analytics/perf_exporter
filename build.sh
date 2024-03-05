@@ -11,7 +11,7 @@ echo "-1" > /proc/sys/kernel/perf_event_paranoid
 
 # Running Node_Exporter
 # (cd ../../ && ./usr/local/bin/node_exporter) &
-# ./usr/local/bin/node_exporter
+cd ../ && ./usr/local/bin/node_exporter
 
 # Wait for any process to exit
 wait -n

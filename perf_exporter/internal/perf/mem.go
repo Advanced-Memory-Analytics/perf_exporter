@@ -32,64 +32,62 @@ type MemStatsTable struct {
 	MemAccessType string  `json:"access"`
 }
 
-func MemCollector(collectorType string, dataBuff chan string) error {
+func MemCollector(collectorType string) (string, error) {
 	switch collectorType {
 	case "load":
 		{
-			for {
-				time.Sleep(2 * time.Second)
-				perf := Perf{}
+			perf := Perf{}
 
-				err := os.WriteFile("mem_load.txt", []byte(util.GenerateRandMemLoadString()), os.ModeExclusive)
-				if err != nil {
-					return fmt.Errorf("failed to write to file %v", err)
-				}
-
-				text, err := os.ReadFile("mem_load.txt")
-				if err != nil {
-					return fmt.Errorf("failed to read file %v", err)
-				}
-
-				err = perf.ParseMemLoads(string(text))
-				if err != nil {
-					log.Debug().Msgf("failed to parse memory load file %v", err)
-					return fmt.Errorf("failed to parse memory load file %v", err)
-				}
-
-				jsonData, err := json.Marshal(perf)
-				if err != nil {
-					return fmt.Errorf("failed to marshal memory load file results %v", err)
-				}
-				fmt.Printf("Perf Mem Loads: %v\n\n", perf.Mem.Load)
-				fmt.Printf("Json Data: %v\n\n", string(jsonData))
-
-				fmt.Println("before change:")
-				dataBuff <- string(jsonData)
-				fmt.Println("after change:")
-
+			err := os.WriteFile("mem_load.txt", []byte(util.GenerateRandMemLoadString()), os.ModeExclusive)
+			if err != nil {
+				return "", fmt.Errorf("failed to write to file %v", err)
 			}
+
+			text, err := os.ReadFile("mem_load.txt")
+			if err != nil {
+				return "", fmt.Errorf("failed to read file %v", err)
+			}
+
+			err = perf.ParseMemLoads(string(text))
+			if err != nil {
+				log.Debug().Msgf("failed to parse memory load file %v", err)
+				return "", fmt.Errorf("failed to parse memory load file %v", err)
+			}
+
+			jsonData, err := json.Marshal(perf)
+			if err != nil {
+				return "", fmt.Errorf("failed to marshal memory load file results %v", err)
+			}
+			fmt.Printf("Perf Mem Loads: %v\n\n", perf.Mem.Load)
+			fmt.Printf("Json Data: %v\n\n", string(jsonData))
+
+			return string(jsonData), nil
 		}
 	case "store":
 		{
-			for {
-				time.Sleep(2 * time.Second)
-				perf := Perf{}
+			time.Sleep(2 * time.Second)
+			perf := Perf{}
 
-				text, err := os.ReadFile("mem_store.txt")
-				if err != nil {
-					return fmt.Errorf("failed to read file %v", err)
-				}
-
-				err = perf.ParseMemLoads(string(text))
-				if err != nil {
-					log.Debug().Msgf("failed to parse memory store file %v", err)
-					return fmt.Errorf("failed to parse memory store file %v", err)
-				}
-
-				fmt.Printf("Perf Mem Stores: %v\n", perf.Mem.Load)
+			text, err := os.ReadFile("mem_store.txt")
+			if err != nil {
+				return "", fmt.Errorf("failed to read file %v", err)
 			}
+
+			err = perf.ParseMemLoads(string(text))
+			if err != nil {
+				log.Debug().Msgf("failed to parse memory store file %v", err)
+				return "", fmt.Errorf("failed to parse memory load file %v", err)
+			}
+
+			fmt.Printf("Perf Mem Stores: %v\n", perf.Mem.Load)
+
+			jsonData, err := json.Marshal(perf)
+			if err != nil {
+				return "", fmt.Errorf("failed to marshal memory store file results %v", err)
+			}
+			return string(jsonData), nil
 		}
 	default:
-		return nil
+		return "", fmt.Errorf("something went wrong")
 	}
 }
