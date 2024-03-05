@@ -18,22 +18,15 @@ func init() {
 	prometheus.MustRegister(promCollector.NewCollector())
 }
 func main() {
-
-	promCollector.PromChannel = make(chan string)
-
-	fmt.Println(util.GenerateRandMemLoadString())
-
-	// go perf.MemCollector("load")
-
 	config, err := util.LoadConfig()
 	if err != nil {
 		log.Fatal().Msgf("Failed to load config %v", err)
 	}
+	port := config.SERVER_ADDRESS
 
 	log.Debug().Msgf("||Config|| server_addr: %v | kafka_addr: %v", config.SERVER_ADDRESS, config.KAFKA_ADDRESS)
 
-	port := config.SERVER_ADDRESS
 	http.Handle("/metrics", promhttp.Handler())
+	log.Logger.Fatal().Msgf("err: %v", http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 
-	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }

@@ -58,9 +58,6 @@ func MemCollector(collectorType string) (string, error) {
 			if err != nil {
 				return "", fmt.Errorf("failed to marshal memory load file results %v", err)
 			}
-			fmt.Printf("Perf Mem Loads: %v\n\n", perf.Mem.Load)
-			fmt.Printf("Json Data: %v\n\n", string(jsonData))
-
 			return string(jsonData), nil
 		}
 	case "store":

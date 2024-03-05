@@ -31,16 +31,13 @@ RUN rm -rf node_exporter-1.7.0.linux-${ARCH_TYPE}/ node_exporter-1.7.0.linux-${A
 EXPOSE 9100
 EXPOSE 8080
 
-COPY build.sh /usr/local/bin/
-COPY perf_exporter /app
+COPY docker-build.sh /usr/local/bin/
+COPY exporter /app
 
 # Set permissions and working directory
-# WORKDIR /app
-RUN chmod +x /usr/local/bin/build.sh
+RUN chmod +x /usr/local/bin/docker-build.sh
 RUN chmod +x /app/main
 
 # Run node_exporter
-# ENTRYPOINT ["/usr/local/bin/perf_paranoid_mod.sh"]
-RUN ls -l /usr/local/bin/build.sh
-# RUN ./usr/local/bin/build.sh
-CMD ./usr/local/bin/build.sh
+RUN ls -l /usr/local/bin/docker-build.sh
+CMD ./usr/local/bin/docker-build.sh

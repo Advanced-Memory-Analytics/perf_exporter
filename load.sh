@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd /perf_exporter && go mod tidy && go mod vendor
+cd /exporter && go mod tidy && go mod vendor

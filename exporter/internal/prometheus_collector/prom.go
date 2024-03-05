@@ -10,10 +10,6 @@ import (
 	"github.com/Advanced-Memory-Analytics/perf_exporter/internal/perf"
 )
 
-// var ToPerf chan string = make(chan string)
-
-var PromChannel chan string
-
 type collector struct {
 	memLoadSampleCount *prometheus.Desc
 	memLoadEventCount  *prometheus.Desc
@@ -214,72 +210,18 @@ type MemoryLoadJSON struct {
 
 func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	// Parse the JSON data
-	// jsonData := `{
-	// 	"mem": {
-	// 		"load": {
-	// 			"header": {
-	// 				"sample_count": 57000,
-	// 				"event_count": 60000,
-	// 				"event": "cpu/mem-loads,ldlat=30/P"
-	// 			},
-	// 			"data": [
-	// 				{
-	// 					"percentage": 21.34,
-	// 					"samples": 12349,
-	// 					"access": "LFB or LFB hit"
-	// 				},
-	// 				{
-	// 					"percentage": 19.83,
-	// 					"samples": 11476,
-	// 					"access": "L1 or L1 hit"
-	// 				},
-	// 				{
-	// 					"percentage": 17.11,
-	// 					"samples": 9901,
-	// 					"access": "L3 or L3 hit"
-	// 				},
-	// 				{
-	// 					"percentage": 14.91,
-	// 					"samples": 8628,
-	// 					"access": "Ldl RAM or RAM hit"
-	// 				},
-	// 				{
-	// 					"percentage": 10.09,
-	// 					"samples": 5841,
-	// 					"access": "L2 or L2 hit"
-	// 				},
-	// 				{
-	// 					"percentage": 7.89,
-	// 					"samples": 4568,
-	// 					"access": "Uncached or N/A hit"
-	// 				},
-	// 				{
-	// 					"percentage": 5.17,
-	// 					"samples": 2993,
-	// 					"access": "I/O or N/A hit"
-	// 				},
-	// 				{
-	// 					"percentage": 3.66,
-	// 					"samples": 2120,
-	// 					"access": "L3 miss"
-	// 				}
-	// 			]
-	// 		}
-	// 	}
-	// }`
-
 	jsonData, err := perf.MemCollector("load")
 	if err != nil {
 		log.Fatalf("Failed to generate JSON data: %v", err)
 	}
 
-	fmt.Printf("TO PERF: %v\n", jsonData)
 	var data MemoryLoadJSON
 	err = json.Unmarshal([]byte(jsonData), &data)
 	if err != nil {
 		log.Fatalf("Failed to unmarshal JSON data: %v", err)
 	}
 
+	// Loading in Metrics!!!
 	ch <- prometheus.MustNewConstMetric(c.memLoadSampleCount, prometheus.GaugeValue, float64(data.Mem.Load.Header.SampleCount), fmt.Sprintf("samples:%s", data.Mem.Load.Header.Event))
 	ch <- prometheus.MustNewConstMetric(c.memLoadEventCount, prometheus.GaugeValue, float64(data.Mem.Load.Header.EventCount), fmt.Sprintf("events:%s", data.Mem.Load.Header.Event))
 

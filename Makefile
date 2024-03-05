@@ -1,13 +1,12 @@
 .PHONY: build run all
 
 build:
-	(cd perf_exporter/ && go mod tidy && go mod vendor)
-	chmod +x perf_exporter/load.sh
+	(cd exporter/ && go mod tidy)
 
 run: 
-	(cd perf_exporter/cmd && go run main.go)
+	(cd exporter/cmd && go run main.go)
 
 
 all: 
-	build 
-	run
+	(cd exporter/ && go mod tidy)
+	(cd exporter && go run cmd/main.go)

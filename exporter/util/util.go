@@ -104,7 +104,7 @@ func GenerateRandMemLoadString() string {
 
 	// Check if total percentage adds up to 100%
 	if totalPercentage != 100.00 {
-		fmt.Println("Warning: Total percentage does not equal 100% (", totalPercentage, ")")
+		fmt.Println("GenerateRandMemLoadString() - warning: Total percentage does not equal 100% (", totalPercentage, ")")
 	}
 
 	// Print the formatted lines as a slice
